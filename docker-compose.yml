@@ -1,0 +1,11 @@
+services:
+  postgres:
+    image: postgres:17
+
+    environment:
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: apppassword
+      POSTGRES_DB: notesdb
+
+    ports:
+      - "5432:5432"
