@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from database import get_connection
 
 app = FastAPI()
 
@@ -20,14 +21,79 @@ class Note(BaseModel):
 
 @app.post("/notes")
 def create_note(note: Note):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "INSERT INTO notes (title, content) VALUES (%s, %s) RETURNING id",
+        (note.title, note.content)
+    )
+
+    note_id = cur.fetchone()[0]
+
+    conn.commit()
+    conn.close()
+
     return {
-        "message": "Note created",
-        "note": note
+        "id": note_id,
+        "title": note.title,
+        "content": note.content
     }
 
 @app.get("/notes")
-def notes():
+def get_notes():
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute("SELECT id, title, content FROM notes")
+    rows = cur.fetchall()
+
+    conn.close()
+
     return [
-        {"id": 1, "title": "Learn Git"},
-        {"id": 2, "title": "Learn FastAPI"}
+        {"id": r[0], "title": r[1], "content": r[2]}
+        for r in rows
     ]
+
+@app.put("/notes/{note_id}")
+def update_note(note_id: int, note: Note):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        """
+        UPDATE notes
+        SET title = %s,
+            content = %s
+        WHERE id = %s
+        """,
+        (note.title, note.content, note_id)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return {
+        "message": "Note updated",
+        "id": note_id,
+        "title": note.title,
+        "content": note.content
+    }
+
+@app.delete("/notes/{note_id}")
+def delete_note(note_id: int):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "DELETE FROM notes WHERE id = %s",
+        (note_id,)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return {
+        "message": "Note deleted",
+        "id": note_id
+    }
