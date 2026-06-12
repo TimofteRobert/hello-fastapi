@@ -1,25 +1,15 @@
-from fastapi import FastAPI
-from pydantic import BaseModel
-from database import get_connection
+from fastapi import APIRouter
+from app.database import get_connection
+from app.models import Note
 
-app = FastAPI()
+router = APIRouter()
 
-@app.get("/")
-def root():
-    return {"message": "Hello FastAPI"}
+@router.get("/notes")
+@router.post("/notes")
+@router.put("/notes/{note_id}")
+@router.delete("/notes/{note_id}")
 
-@app.get("/about")
-def about():
-    return {
-        "name": "Robert",
-        "learning": "FastAPI"
-    }
-
-class Note(BaseModel):
-    title: str
-    content: str
-
-@app.post("/notes")
+@router.post("/notes")
 def create_note(note: Note):
     conn = get_connection()
     cur = conn.cursor()
@@ -40,7 +30,7 @@ def create_note(note: Note):
         "content": note.content
     }
 
-@app.get("/notes")
+@router.get("/notes")
 def get_notes():
     conn = get_connection()
     cur = conn.cursor()
@@ -55,7 +45,7 @@ def get_notes():
         for r in rows
     ]
 
-@app.put("/notes/{note_id}")
+@router.put("/notes/{note_id}")
 def update_note(note_id: int, note: Note):
     conn = get_connection()
     cur = conn.cursor()
@@ -80,7 +70,7 @@ def update_note(note_id: int, note: Note):
         "content": note.content
     }
 
-@app.delete("/notes/{note_id}")
+@router.delete("/notes/{note_id}")
 def delete_note(note_id: int):
     conn = get_connection()
     cur = conn.cursor()
