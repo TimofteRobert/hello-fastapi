@@ -1,89 +1,31 @@
 from fastapi import APIRouter
 from app.database import get_connection
 from app.models import Note
+from app.services.notes_service import (
+    get_notes,
+    create_note,
+    update_note,
+    delete_note
+    )
 
 router = APIRouter()
 
-@router.get("/notes")
-@router.post("/notes")
-@router.put("/notes/{note_id}")
-@router.delete("/notes/{note_id}")
 
 @router.post("/notes")
-def create_note(note: Note):
-    conn = get_connection()
-    cur = conn.cursor()
+def create_note_route(note: Note):
+    return create_note(note)
 
-    cur.execute(
-        "INSERT INTO notes (title, content) VALUES (%s, %s) RETURNING id",
-        (note.title, note.content)
-    )
-
-    note_id = cur.fetchone()[0]
-
-    conn.commit()
-    conn.close()
-
-    return {
-        "id": note_id,
-        "title": note.title,
-        "content": note.content
-    }
 
 @router.get("/notes")
-def get_notes():
-    conn = get_connection()
-    cur = conn.cursor()
+def get_all_notes():
+    return get_notes()
 
-    cur.execute("SELECT id, title, content FROM notes")
-    rows = cur.fetchall()
-
-    conn.close()
-
-    return [
-        {"id": r[0], "title": r[1], "content": r[2]}
-        for r in rows
-    ]
 
 @router.put("/notes/{note_id}")
-def update_note(note_id: int, note: Note):
-    conn = get_connection()
-    cur = conn.cursor()
+def update_note_route(note_id: int, note: Note):
+    return update_note(note_id, note)
 
-    cur.execute(
-        """
-        UPDATE notes
-        SET title = %s,
-            content = %s
-        WHERE id = %s
-        """,
-        (note.title, note.content, note_id)
-    )
-
-    conn.commit()
-    conn.close()
-
-    return {
-        "message": "Note updated",
-        "id": note_id,
-        "title": note.title,
-        "content": note.content
-    }
 
 @router.delete("/notes/{note_id}")
-def delete_note(note_id: int):
-    conn = get_connection()
-    cur = conn.cursor()
-
-    cur.execute(
-        "DELETE FROM notes WHERE id = %s",
-        (note_id,)
-    )
-
-    conn.commit()
-    conn.close()
-
-    return {
-        "message": "Note deleted",
-        "id": note_id
-    }
+def delete_note_route(note_id: int):
+    return delete_note(note_id)
