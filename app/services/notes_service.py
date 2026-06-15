@@ -15,6 +15,27 @@ def get_notes():
         for r in rows
     ]
 
+def get_note_by_id(note_id: int):
+    conn = get_connection()
+    cur = conn.cursor()
+
+    cur.execute(
+        "SELECT id, title, content FROM notes WHERE id = %s",
+        (note_id,)
+    )
+
+    row = cur.fetchone()
+    conn.close()
+
+    if row is None:
+        return None
+    
+    return {
+        "id": row[0],
+        "title": row[1],
+        "content": row[2]
+    }
+
 def create_note(note: Note):
     conn = get_connection()
     cur = conn.cursor()
@@ -67,6 +88,10 @@ def delete_note(note_id: int):
         "DELETE FROM notes WHERE id = %s",
         (note_id,)
     )
+
+    if cur.rowcount == 0:
+        conn.close()
+        return None
 
     conn.commit()
     conn.close()
