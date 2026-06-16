@@ -1,5 +1,4 @@
 from fastapi import APIRouter, HTTPException
-from app.database import get_connection
 from app.models import Note, NoteCreate, NoteResponse
 from app.services.notes_service import (
     get_notes,
@@ -26,7 +25,7 @@ def get_all_notes():
 def get_note_route(note_id: int):
     note = get_note_by_id(note_id)
 
-    if note is Note:
+    if note is None:
         raise HTTPException(status_code=404, detail="Note not found")
     
     return note
