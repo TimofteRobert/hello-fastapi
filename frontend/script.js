@@ -1,3 +1,11 @@
+let editingNoteId = null;
+
+function editNote(note) {
+    document.getElementById("title").value = note.title;
+    document.getElementById("content").value = note.content;
+    editingNoteId = note.id;
+}
+
 async function createNote() {
     const title = document.getElementById("title").value;
     const content = document.getElementById("content").value;
@@ -34,10 +42,54 @@ async function loadNotes() {
         const element = document.createElement("p");
 
         element.innerHTML =
-        `${note.id}: ${note.title} - ${note.content}`;
+        `
+        ${note.id}: ${note.title} - ${note.content}
+
+        <button onclick='editNote(${JSON.stringify(note)})'>
+            Edit
+        </button>
+
+        <button onclick="deleteNote(${note.id})">
+            Delete
+        </button>
+        `;
 
         container.appendChild(element);
     });
 }
 
 loadNotes();
+
+async function deleteNote(noteId) {
+    await fetch(
+        `http://127.0.0.1:8000/notes/${noteId}`,
+        {
+            method: "DELETE"
+        }
+    );
+
+    loadNotes();
+}
+
+async function updateNote() {
+    const title = document.getElementById("title").value;
+    const content = document.getElementById("content").value;
+
+    await fetch(
+        `http://127.0.0.1:8000/notes/${editingNoteId}`,
+        {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                title: title,
+                content: content
+            })
+        }
+    );
+
+    editingNoteId = null;
+
+    loadNotes();
+}
