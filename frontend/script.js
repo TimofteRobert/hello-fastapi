@@ -1,3 +1,6 @@
+const API_URL = "http://127.0.0.1:8000";
+
+// Stores the note currently being edited
 let editingNoteId = null;
 
 
@@ -5,31 +8,48 @@ function editNote(note) {
     document.getElementById("title").value = note.title;
     document.getElementById("content").value = note.content;
     editingNoteId = note.id;
+
+    document.getElementById("status").textContent =
+        `Editing note #${note.id}`;
+}
+
+
+// Read values from the note form
+function getFormData() {
+    return {
+        title: document.getElementById("title").value,
+        content: document.getElementById("content").value
+    };
+}
+
+
+// Reset the form after create/update
+function clearForm() {
+    document.getElementById("title").value = "";
+    document.getElementById("content").value = "";
 }
 
 
 async function createNote() {
-    const title = document.getElementById("title").value;
-    const content = document.getElementById("content").value;
+    const note = getFormData();
 
     await fetch(
-        "http://127.0.0.1:8000/notes",
+        `${API_URL}/notes`,
         {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                title: title,
-                content: content
-            })
+            body: JSON.stringify(note)
         }
     );
 
-    document.getElementById("title").value = "";
-    document.getElementById("content").value = "";
-
+    clearForm();
     loadNotes();
+
+    document.getElementById("status").textContent =
+        "Creating new note";
+    
 }
 
 
@@ -38,10 +58,14 @@ function renderNotes(notes) {
     const container = document.getElementById("notes");
     container.innerHTML = "";
     notes.forEach(note => {
-        const element = document.createElement("p");
+        const element = document.createElement("div");
+        element.className = "note";
         element.innerHTML =
         `
-        ${note.id}: ${note.title} - ${note.content}
+        <h3>${note.title}</h3>
+        <p>${note.content}</p>
+        <small>ID: ${note.id}</small>
+        <br /><br />
 
         <button onclick='editNote(${JSON.stringify(note)})'>
             Edit
@@ -58,9 +82,10 @@ function renderNotes(notes) {
 }
 
 
+// Load all notes from the backend API
 async function loadNotes() {
     const response = await fetch(
-        "http://127.0.0.1:8000/notes"
+        `${API_URL}/notes/`
     );
 
     const notes = await response.json();
@@ -72,13 +97,23 @@ loadNotes();
 
 
 async function deleteNote(noteId) {
+
+    const confirmed = confirm(
+        "Are you sure you want to delete this note?"
+    );
+
+    if (!confirmed) {
+        return;
+    }
+
     await fetch(
-        `http://127.0.0.1:8000/notes/${noteId}`,
+        `${API_URL}/notes/${noteId}`,
         {
             method: "DELETE"
         }
     );
 
+    // Refresh UI after successful deletion
     loadNotes();
 }
 
@@ -89,27 +124,24 @@ async function updateNote() {
         return;
     }
 
-    const title = document.getElementById("title").value;
-    const content = document.getElementById("content").value;
+    const note = getFormData();
 
     await fetch(
-        `http://127.0.0.1:8000/notes/${editingNoteId}`,
+        `${API_URL}/notes/${editingNoteId}`,
         {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({
-                title: title,
-                content: content
-            })
+            body: JSON.stringify(note)
         }
     );
 
     editingNoteId = null;
 
-    document.getElementById("title").value = "";
-    document.getElementById("content").value = "";
-
+    clearForm();
     loadNotes();
+
+    document.getElementById("status").textContent =
+        "Creating new note";
 }
