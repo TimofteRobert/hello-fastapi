@@ -7,6 +7,13 @@ function setStatus(message) {
 }
 
 
+// Error handling functions
+function setError(message) {
+    document.getElementById("status").textContent =
+        `Error: ${message}`;
+}
+
+
 function editNote(note) {
     document.getElementById("title").value = note.title;
     document.getElementById("content").value = note.content;
@@ -31,17 +38,24 @@ function clearForm() {
     document.getElementById("content").value = "";
 }
 
-
+// Note operations
 async function createNote() {
-    const note = getFormData();
+    try {
+        setStatus("Creating note...");
 
-    await createNoteApi(note);
+        const note = getFormData();
 
-    clearForm();
-    loadNotes();
+        await createNoteApi(note);
 
-    setStatus("Creating new note");
-    
+        clearForm();
+        loadNotes();
+
+        setStatus("Creating new note");
+    }
+    catch (error) {
+        console.error(error);
+        setError("Could not create note");
+    }
 }
 
 
@@ -84,9 +98,19 @@ function createNoteElement(note) {
 
 // Load all notes from the backend API
 async function loadNotes() {
-    const notes = await getNotes();
 
-    renderNotes(notes);
+    try{
+        setStatus("Loading notes...");
+
+        const notes = await getNotes();
+        renderNotes(notes);
+
+        setStatus("Ready");
+    }
+    catch (error) {
+        console.error(error);
+        setError("Could not load notes from server");
+    }
 }
 
 loadNotes();
@@ -102,7 +126,14 @@ async function deleteNote(noteId) {
         return;
     }
 
-    await deleteNoteApi(noteId);
+    try {
+        setStatus("Deleting note...");
+
+        await deleteNoteApi(noteId);
+    }
+    catch (error) {
+        setError("Could not delete note");
+    }
 
     // Refresh UI after successful deletion
     loadNotes();
@@ -115,14 +146,22 @@ async function updateNote() {
         return;
     }
 
-    const note = getFormData();
+    try {
+        setStatus("Updating note...");
 
-    await updateNoteApi(editingNoteId, note);
+        const note = getFormData();
 
-    editingNoteId = null;
+        await updateNoteApi(editingNoteId, note);
 
-    clearForm();
-    loadNotes();
+        editingNoteId = null;
 
-    setStatus("Creating new note");
+        clearForm();
+        loadNotes();
+
+        setStatus("Creating new note");
+    }
+    catch (error) {
+        console.error(error);
+        setError("Could not update note");
+    }
 }

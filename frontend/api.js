@@ -7,6 +7,10 @@ async function getNotes() {
         `${API_URL}/notes`
     );
 
+    if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+    }
+
     return await response.json();
 }
 
@@ -23,6 +27,11 @@ async function createNoteApi(note) {
             body: JSON.stringify(note)
         }
     );
+
+    
+    if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+    }
 
     return await response.json();
 }
@@ -41,16 +50,26 @@ async function updateNoteApi(noteId, note) {
         }
     );
 
+    
+    if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+    }
+
     return await response.json();
 }
 
 
 // Delete note
 async function deleteNoteApi(noteId) {
-    await fetch(
+    const response = await fetch(
         `${API_URL}/notes/${noteId}`,
         {
             method: "DELETE"
         }
     );
+
+    
+    if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+    }
 }
