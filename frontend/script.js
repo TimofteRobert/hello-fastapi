@@ -7,6 +7,42 @@ function setStatus(message) {
 }
 
 
+// Validate note form data
+function validateNote(note) {
+    if (note.title.trim() === "") {
+        setError("Title cannot be empty");
+        return false;
+    }
+
+    if (note.content.trim() === "") {
+        setError("Content cannot be empty");
+        return false;
+    }
+
+    if (note.title.trim().length < 3) {
+        setError("Title must be at least 3 characters")
+        return false;
+    }
+
+    if (note.content.trim().length < 5) {
+        setError("Content must be at least 5 characters")
+        return false;
+    }
+
+    return true;
+}
+
+
+// Enable or disable action buttons
+function setButtonsDisabled(disabled) {
+    const buttons = document.querySelectorAll("button");
+
+    buttons.forEach(button => {
+        button.disabled = disabled;
+    });
+}
+
+
 // Error handling functions
 function setError(message) {
     document.getElementById("status").textContent =
@@ -40,21 +76,28 @@ function clearForm() {
 
 // Note operations
 async function createNote() {
-    try {
-        setStatus("Creating note...");
+    setButtonsDisabled(true);
 
+    try {
         const note = getFormData();
 
-        await createNoteApi(note);
+        if (!validateNote(note)) {
+            return;
+        }
+
+        await createNoteApi(note);   
 
         clearForm();
         loadNotes();
 
-        setStatus("Creating new note");
+        setStatus("Note created successfully");
     }
     catch (error) {
         console.error(error);
         setError("Could not create note");
+    }
+    finally {
+        setButtonsDisabled(false);
     }
 }
 
@@ -126,13 +169,18 @@ async function deleteNote(noteId) {
         return;
     }
 
-    try {
-        setStatus("Deleting note...");
+    setButtonsDisabled(true);
 
+    try {
         await deleteNoteApi(noteId);
+
+        setStatus("Note deleted successfully");
     }
     catch (error) {
         setError("Could not delete note");
+    }
+    finally {
+        setButtonsDisabled(false);
     }
 
     // Refresh UI after successful deletion
@@ -146,10 +194,14 @@ async function updateNote() {
         return;
     }
 
-    try {
-        setStatus("Updating note...");
+    setButtonsDisabled(true);
 
+    try {
         const note = getFormData();
+
+        if (!validateNote(note)) {
+            return;
+        }
 
         await updateNoteApi(editingNoteId, note);
 
@@ -158,10 +210,13 @@ async function updateNote() {
         clearForm();
         loadNotes();
 
-        setStatus("Creating new note");
+        setStatus("Note updated successfully");
     }
     catch (error) {
         console.error(error);
         setError("Could not update note");
+    }
+    finally {
+        setButtonsDisabled(false);
     }
 }
