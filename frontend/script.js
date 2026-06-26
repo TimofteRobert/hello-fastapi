@@ -3,7 +3,19 @@ let editingNoteId = null;
 
 // UI helper functions
 function setStatus(message) {
-    document.getElementById("status").textContent = message;
+    const status = document.getElementById("status");
+
+    status.textContent = message;
+    status.className = "status success";
+}
+
+
+// Error handling functions
+function setError(message) {
+    const status = document.getElementById("status");
+
+    status.textContent = `Error: ${message}`;
+    status.className = "status error";
 }
 
 
@@ -43,13 +55,6 @@ function setButtonsDisabled(disabled) {
 }
 
 
-// Error handling functions
-function setError(message) {
-    document.getElementById("status").textContent =
-        `Error: ${message}`;
-}
-
-
 function editNote(note) {
     document.getElementById("title").value = note.title;
     document.getElementById("content").value = note.content;
@@ -68,6 +73,17 @@ function getFormData() {
 }
 
 
+// Get and validate note data from the form
+function getValidatedNote() {
+    const note = getFormData();
+    if (!validateNote(note)) {
+        return null;
+    }
+
+    return note;
+}
+
+
 // Reset the form after create/update
 function clearForm() {
     document.getElementById("title").value = "";
@@ -79,9 +95,8 @@ async function createNote() {
     setButtonsDisabled(true);
 
     try {
-        const note = getFormData();
-
-        if (!validateNote(note)) {
+        const note = getValidatedNote();
+        if (note === null) {
             return;
         }
 
@@ -125,17 +140,27 @@ function createNoteElement(note) {
         <p>${note.content}</p>
         <small>ID: ${note.id}</small>
         <br /><br />
-
-        <button onclick='editNote(${JSON.stringify(note)})'>
-            Edit
-        </button>
-
-        <button onclick="deleteNote(${note.id})">
-            Delete
-        </button>
         `;
 
-        return element;
+    // Create action buttons for this note
+    const editButton = document.createElement("button");
+    editButton.textContent = "Edit";
+
+    editButton.addEventListener("click", () => {
+        editNote(note);
+    });
+
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "Delete";
+
+    deleteButton.addEventListener("click", () => {
+        deleteNote(note.id);
+    });
+
+    element.appendChild(editButton);
+    element.appendChild(deleteButton);
+
+    return element;
 }
 
 
@@ -197,9 +222,8 @@ async function updateNote() {
     setButtonsDisabled(true);
 
     try {
-        const note = getFormData();
-
-        if (!validateNote(note)) {
+        const note = getValidatedNote();
+        if (note === null) {
             return;
         }
 
