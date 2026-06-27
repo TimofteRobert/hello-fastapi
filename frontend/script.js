@@ -123,12 +123,28 @@ function renderNotes(notes) {
 
     container.innerHTML = "";
 
+    if (notes.length === 0) {
+        container.textContent = "No notes found.";
+        return;
+    }
+
     notes.forEach(note => {
         container.appendChild(
             createNoteElement(note)
         );
     });
 }
+
+
+// Get the current search text
+function getSearchText() {
+    return document
+        .getElementById("search")
+        .value
+        .trim()
+        .toLowerCase();
+} 
+
 
 function createNoteElement(note) {
 
@@ -171,8 +187,9 @@ async function loadNotes() {
         setStatus("Loading notes...");
 
         const notes = await getNotes();
-        renderNotes(notes);
+        const filteredNotes = filterNotes(notes);
 
+        renderNotes(filteredNotes);
         setStatus("Ready");
     }
     catch (error) {
@@ -182,6 +199,20 @@ async function loadNotes() {
 }
 
 loadNotes();
+
+
+// Return only notes matching the current search text
+// Filter notes using the current search text
+function filterNotes(notes) {
+    const searchText = getSearchText();
+    return notes.filter(notes => {
+        return (
+            note.title.toLowerCase().includes(searchText) ||
+            note.content.toLowerCase().includes(searchText)
+        );
+    });
+}
+    
 
 
 async function deleteNote(noteId) {
