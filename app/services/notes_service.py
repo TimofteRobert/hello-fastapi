@@ -1,23 +1,38 @@
 from app.database import get_connection
 from app.models import Note
+from typing import Optional
 
-def get_notes():
+
+def get_notes(search: Optional[str] = None):
     conn = get_connection()
 
     try:
         cur = conn.cursor()
 
-        cur.execute("SELECT id, title, content FROM notes")
+        if search:
+            cur.execute(
+                """
+                SELECT id, title, content
+                FROM notes
+                WHERE
+                    title ILIKE %s
+                    OR content ILIKE %s
+                """,
+                (f"%{search}%", f"%{search}%")
+            )
+        else:
+            cur.execute("SELECT id, title, content FROM notes")
+
         rows = cur.fetchall()
 
         return [
-        {
-            "id": r[0],
-            "title": r[1],
-            "content": r[2]
-        }
-        for r in rows
-    ]
+            {
+                "id": r[0],
+                "title": r[1],
+                "content": r[2]
+            }
+            for r in rows
+        ]
 
     finally:   
         cur.close() 

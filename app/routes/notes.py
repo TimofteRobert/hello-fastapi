@@ -1,5 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from app.models import Note, NoteCreate, NoteResponse
+from typing import Optional
 from app.services.notes_service import (
     get_notes,
     create_note,
@@ -17,8 +18,8 @@ def create_note_route(note: NoteCreate):
 
 
 @router.get("/notes", response_model=list[NoteResponse])
-def get_all_notes():
-    return get_notes()
+def get_all_notes(search: Optional[str] = None):
+    return get_notes(search)
 
 
 @router.get("/notes/{note_id}", response_model=NoteResponse)

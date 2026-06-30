@@ -136,14 +136,14 @@ function renderNotes(notes) {
 }
 
 
-// Get the current search text
-function getSearchText() {
-    return document
-        .getElementById("search")
-        .value
-        .trim()
-        .toLowerCase();
-} 
+// // Get the current search text
+// function getSearchText() {
+//     return document
+//         .getElementById("search")
+//         .value
+//         .trim()
+//         .toLowerCase();
+// } 
 
 
 function createNoteElement(note) {
@@ -186,10 +186,10 @@ async function loadNotes() {
     try{
         setStatus("Loading notes...");
 
-        const notes = await getNotes();
-        const filteredNotes = filterNotes(notes);
+        const search = document.getElementById("search").value;
+        const notes = await getNotes(search);
 
-        renderNotes(filteredNotes);
+        renderNotes(notes);
         setStatus("Ready");
     }
     catch (error) {
@@ -201,18 +201,18 @@ async function loadNotes() {
 loadNotes();
 
 
-// Return only notes matching the current search text
-// Filter notes using the current search text
-function filterNotes(notes) {
-    const searchText = getSearchText();
-    return notes.filter(notes => {
-        return (
-            note.title.toLowerCase().includes(searchText) ||
-            note.content.toLowerCase().includes(searchText)
-        );
-    });
-}
-    
+// // Return only notes matching the current search text
+// // Filter notes using the current search text
+// function filterNotes(notes) {
+//     const searchText = getSearchText();
+//     return notes.filter(note => {
+//         return (
+//             note.title.toLowerCase().includes(searchText) ||
+//             note.content.toLowerCase().includes(searchText)
+//         );
+//     });
+// }
+
 
 
 async function deleteNote(noteId) {
