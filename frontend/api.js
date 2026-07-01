@@ -2,9 +2,9 @@ const API_URL = "http://127.0.0.1:8000";
 
 
 // Get all notes
-async function getNotes(search = "") {
+async function getNotes(search = "", sort = "id") {
     const response = await fetch(
-        `${API_URL}/notes?search=${encodeURIComponent(search)}`
+        `${API_URL}/notes?search=${encodeURIComponent(search)}&sort=${encodeURIComponent(sort)}`
     );
 
     if (!response.ok) {

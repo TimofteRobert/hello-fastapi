@@ -18,8 +18,8 @@ def create_note_route(note: NoteCreate):
 
 
 @router.get("/notes", response_model=list[NoteResponse])
-def get_all_notes(search: Optional[str] = None):
-    return get_notes(search)
+def get_all_notes(search: Optional[str] = None, sort: str = "id"):
+    return get_notes(search, sort)
 
 
 @router.get("/notes/{note_id}", response_model=NoteResponse)

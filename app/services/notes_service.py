@@ -3,25 +3,42 @@ from app.models import Note
 from typing import Optional
 
 
-def get_notes(search: Optional[str] = None):
+def get_notes(search: Optional[str] = None, sort: str = "id"):
     conn = get_connection()
 
     try:
         cur = conn.cursor()
 
+        # Map allowed sort options to SQL
+        sort_options = {
+            "id": "id ASC",
+            "id_desc": "id DESC",
+            "title": "title ASC",
+            "title_desc": "title DESC"
+        }
+
+        order_by = sort_options.get(sort, "id ASC")
+
         if search:
             cur.execute(
-                """
+                f"""
                 SELECT id, title, content
                 FROM notes
                 WHERE
                     title ILIKE %s
                     OR content ILIKE %s
+                ORDER BY {order_by}
                 """,
                 (f"%{search}%", f"%{search}%")
             )
         else:
-            cur.execute("SELECT id, title, content FROM notes")
+            cur.execute(
+                f"""
+                SELECT id, title, content
+                FROM notes
+                ORDER BY {order_by}
+                """
+                )
 
         rows = cur.fetchall()
 

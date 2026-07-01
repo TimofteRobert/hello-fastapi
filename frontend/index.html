@@ -18,7 +18,7 @@
     <br /><br />
 
     <button onclick="createNote()">
-        Create Note
+        Create Note 
     </button>
 
     <button onclick="updateNote()">
@@ -33,6 +33,13 @@
     oninput="loadNotes()" 
     />
 
+    <label for="sort">Sort by:</label>
+    <select id="sort" onchange="loadNotes()">
+        <option value="id">ID (ascending)</option>
+        <option value="id_desc">ID (descending)</option>
+        <option value="title">Title (A-Z)</option>
+        <option value="title_desc">Title (Z-A)</option>
+    </select>
 
     <div id="notes"></div>
 

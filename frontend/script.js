@@ -187,7 +187,9 @@ async function loadNotes() {
         setStatus("Loading notes...");
 
         const search = document.getElementById("search").value;
-        const notes = await getNotes(search);
+        const sort = document.getElementById("sort").value;
+
+        const notes = await getNotes(search, sort);
 
         renderNotes(notes);
         setStatus("Ready");
