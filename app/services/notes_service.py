@@ -3,12 +3,27 @@ from app.models import Note
 from typing import Optional
 
 
-def get_notes(search: Optional[str] = None, sort: str = "id"):
+# Create a new database connection and cursor
+def get_cursor():
     conn = get_connection()
+    cur = conn.cursor()
+
+    return conn, cur
+
+
+# Create a dictionary
+def make_note(id, title, content):
+    return {
+        "id": id,
+        "title": title,
+        "content": content
+    }
+
+
+def get_notes(search: Optional[str] = None, sort: str = "id"):
+    conn, cur = get_cursor()
 
     try:
-        cur = conn.cursor()
-
         # Map allowed sort options to SQL
         sort_options = {
             "id": "id ASC",
@@ -57,11 +72,9 @@ def get_notes(search: Optional[str] = None, sort: str = "id"):
 
 
 def get_note_by_id(note_id: int):
-    conn = get_connection()
+    conn, cur = get_cursor()
 
     try:
-        cur = conn.cursor()
-
         cur.execute(
             "SELECT id, title, content FROM notes WHERE id = %s",
             (note_id,)
@@ -84,11 +97,9 @@ def get_note_by_id(note_id: int):
 
     
 def create_note(note: Note):
-    conn = get_connection()
+    conn, cur = get_cursor()
 
     try:
-        cur = conn.cursor()
-
         cur.execute(
             "INSERT INTO notes (title, content) VALUES (%s, %s) RETURNING id",
             (note.title, note.content)
@@ -112,11 +123,9 @@ def create_note(note: Note):
         conn.close()    
 
 def update_note(note_id: int, note: Note):
-    conn = get_connection()
+    conn, cur = get_cursor()
 
     try:
-        cur = conn.cursor()
-
         cur.execute(
             """
             UPDATE notes
@@ -149,11 +158,9 @@ def update_note(note_id: int, note: Note):
 
 
 def delete_note(note_id: int):
-    conn = get_connection()
+    conn, cur = get_cursor()
 
     try:
-        cur = conn.cursor()
-
         cur.execute(
             "DELETE FROM notes WHERE id = %s",
             (note_id,)
