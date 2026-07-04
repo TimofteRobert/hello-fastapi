@@ -12,9 +12,9 @@ def get_cursor():
 
 
 # Create a dictionary
-def make_note(id, title, content):
+def make_note(note_id, title, content):
     return {
-        "id": id,
+        "id": note_id,
         "title": title,
         "content": content
     }
@@ -58,11 +58,11 @@ def get_notes(search: Optional[str] = None, sort: str = "id"):
         rows = cur.fetchall()
 
         return [
-            {
-                "id": r[0],
-                "title": r[1],
-                "content": r[2]
-            }
+            make_note(
+                r[0],
+                r[1],
+                r[2]
+            )
             for r in rows
         ]
 
@@ -85,11 +85,11 @@ def get_note_by_id(note_id: int):
         if row is None:
             return None
     
-        return {
-            "id": row[0],
-            "title": row[1],
-            "content": row[2]
-        }
+        return make_note(
+            row[0],
+            row[1],
+            row[2]
+        )
 
     finally:
         cur.close()
@@ -108,11 +108,11 @@ def create_note(note: Note):
         note_id = cur.fetchone()[0]
         conn.commit()
 
-        return {
-            "id": note_id,
-            "title": note.title,
-            "content": note.content
-        }
+        return make_note(
+            note_id,
+            note.title,
+            note.content
+        )
 
     except Exception:
         conn.rollback()
@@ -141,12 +141,14 @@ def update_note(note_id: int, note: Note):
 
         conn.commit()
 
-        return {
-            "message": "Note updated",
-            "id": note_id,
-            "title": note.title,
-            "content": note.content
-        }
+        updated_note = make_note(
+            note_id,
+            note.title,
+            note.content
+        )
+        updated_note["message"] = "Note updated"
+
+        return updated_note
 
     except Exception:
         conn.rollback()
