@@ -15,6 +15,20 @@ async function getNotes(search = "", sort = "id") {
 }
 
 
+// Get note statistics
+async function getNoteStats() {
+    const response = await fetch(
+        `${API_URL}/notes/stats`
+    );
+
+    if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+    }
+
+    return await response.json();
+}
+
+
 // Create note
 async function createNoteApi(note) {
     const response = await fetch(

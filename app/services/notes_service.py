@@ -71,6 +71,28 @@ def get_notes(search: Optional[str] = None, sort: str = "id"):
         conn.close()   
 
 
+def get_note_stats():
+    conn, cur = get_cursor()
+
+    try:
+        cur.execute(
+            """
+            SELECT COUNT(*)
+            FROM notes
+            """
+        )
+
+        total_notes = cur.fetchone()[0]
+
+        return {
+            "total_notes": total_notes
+        }
+    
+    finally:
+        cur.close()
+        conn.close()
+
+
 def get_note_by_id(note_id: int):
     conn, cur = get_cursor()
 

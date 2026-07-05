@@ -6,7 +6,8 @@ from app.services.notes_service import (
     create_note,
     update_note,
     delete_note,
-    get_note_by_id
+    get_note_by_id,
+    get_note_stats
     )
 
 router = APIRouter()
@@ -20,6 +21,11 @@ def create_note_route(note: NoteCreate):
 @router.get("/notes", response_model=list[NoteResponse])
 def get_all_notes(search: Optional[str] = None, sort: str = "id"):
     return get_notes(search, sort)
+
+
+@router.get("/notes/stats")
+def get_note_stats_route():
+    return get_note_stats()
 
 
 @router.get("/notes/{note_id}", response_model=NoteResponse)

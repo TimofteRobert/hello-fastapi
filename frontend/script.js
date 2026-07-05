@@ -90,6 +90,14 @@ function clearForm() {
     document.getElementById("content").value = "";
 }
 
+
+// Refreshes page and loads notes and stats
+async function refreshPage() {
+    await loadNotes();
+    await loadStats();
+}
+
+
 // Note operations
 async function createNote() {
     setButtonsDisabled(true);
@@ -103,7 +111,7 @@ async function createNote() {
         await createNoteApi(note);   
 
         clearForm();
-        loadNotes();
+        await refreshPage();
 
         setStatus("Note created successfully");
     }
@@ -180,6 +188,20 @@ function createNoteElement(note) {
 }
 
 
+async function loadStats() {
+    
+    try {
+        const stats = await getNoteStats();
+
+        document.getElementById("stats").textContent =
+            `Total notes: ${stats.total_notes}`;
+    }
+    catch (error) {
+        console.error(error);
+    }
+}
+
+
 // Load all notes from the backend API
 async function loadNotes() {
 
@@ -200,7 +222,7 @@ async function loadNotes() {
     }
 }
 
-loadNotes();
+refreshPage();
 
 
 // // Return only notes matching the current search text
@@ -242,7 +264,7 @@ async function deleteNote(noteId) {
     }
 
     // Refresh UI after successful deletion
-    loadNotes();
+    await refreshPage();
 }
 
 
@@ -265,7 +287,7 @@ async function updateNote() {
         editingNoteId = null;
 
         clearForm();
-        loadNotes();
+        await refreshPage();
 
         setStatus("Note updated successfully");
     }
