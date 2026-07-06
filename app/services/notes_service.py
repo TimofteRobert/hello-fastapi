@@ -11,6 +11,12 @@ def get_cursor():
     return conn, cur
 
 
+# Close database resources
+def close_cursor(conn, cur):
+    cur.close()
+    conn.close()
+
+
 # Create a dictionary
 def make_note(note_id, title, content):
     return {
@@ -67,8 +73,7 @@ def get_notes(search: Optional[str] = None, sort: str = "id"):
         ]
 
     finally:   
-        cur.close() 
-        conn.close()   
+        close_cursor(conn, cur)  
 
 
 def get_note_stats():
@@ -89,8 +94,7 @@ def get_note_stats():
         }
     
     finally:
-        cur.close()
-        conn.close()
+        close_cursor(conn, cur)  
 
 
 def get_note_by_id(note_id: int):
@@ -114,8 +118,7 @@ def get_note_by_id(note_id: int):
         )
 
     finally:
-        cur.close()
-        conn.close()
+        close_cursor(conn, cur)  
 
     
 def create_note(note: Note):
@@ -141,8 +144,7 @@ def create_note(note: Note):
         raise
 
     finally:
-        cur.close()
-        conn.close()    
+        close_cursor(conn, cur)     
 
 def update_note(note_id: int, note: Note):
     conn, cur = get_cursor()
@@ -177,8 +179,7 @@ def update_note(note_id: int, note: Note):
         raise
 
     finally:
-        cur.close()
-        conn.close()
+        close_cursor(conn, cur)  
 
 
 def delete_note(note_id: int):
@@ -205,5 +206,4 @@ def delete_note(note_id: int):
         raise
 
     finally:
-        cur.close()
-        conn.close()
+        close_cursor(conn, cur)  
