@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from app.models import Note, NoteCreate, NoteResponse
+from app.models import NoteCreate, NoteResponse
 from typing import Optional
 from app.services.notes_service import (
     get_notes,
@@ -40,7 +40,12 @@ def get_note_route(note_id: int):
 
 @router.put("/notes/{note_id}", response_model=NoteResponse)
 def update_note_route(note_id: int, note: NoteCreate):
-    return update_note(note_id, note)
+    result = update_note(note_id, note)
+
+    if result is None:
+        raise HTTPException(status_code=404, detail="Note not found")
+    
+    return result
 
 
 @router.delete("/notes/{note_id}")
