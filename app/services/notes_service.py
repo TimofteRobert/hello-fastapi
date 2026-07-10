@@ -99,11 +99,11 @@ def get_note_stats(search: Optional[str] = None):
                 """,
                 (f"%{search}%", f"%{search}%")
             )
+            
             matching_notes = cur.fetchone()[0] 
+
         else:
             matching_notes = total_notes
-
-               
 
         return {
             "total_notes": total_notes,
