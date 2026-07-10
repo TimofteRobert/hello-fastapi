@@ -194,7 +194,8 @@ async function loadStats() {
         const stats = await getNoteStats();
 
         document.getElementById("stats").textContent =
-            `Total notes: ${stats.total_notes}`;
+            `Total notes: ${stats.total_notes}<br>
+            Matching notes: ${stats.matching_notes}`;
     }
     catch (error) {
         console.error(error);

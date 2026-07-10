@@ -23,9 +23,10 @@ def get_all_notes(search: Optional[str] = None, sort: str = "id"):
     return get_notes(search, sort)
 
 
+
 @router.get("/notes/stats")
-def get_note_stats_route():
-    return get_note_stats()
+def get_note_stats_route(search: Optional[str] = None):
+    return get_note_stats(search)
 
 
 @router.get("/notes/{note_id}", response_model=NoteResponse)

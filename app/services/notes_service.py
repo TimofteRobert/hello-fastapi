@@ -76,7 +76,7 @@ def get_notes(search: Optional[str] = None, sort: str = "id"):
         close_cursor(conn, cur)  
 
 
-def get_note_stats():
+def get_note_stats(search: Optional[str] = None):
     conn, cur = get_cursor()
 
     try:
@@ -86,11 +86,28 @@ def get_note_stats():
             FROM notes
             """
         )
-
         total_notes = cur.fetchone()[0]
 
+        if search:
+            cur.execute(
+                """
+                SELECT COUNT(*)
+                FROM notes
+                WHERE 
+                    title ILIKE %s
+                    OR content ILIKE %s
+                """,
+                (f"%{search}%", f"%{search}%")
+            )
+            matching_notes = cur.fetchone()[0] 
+        else:
+            matching_notes = total_notes
+
+               
+
         return {
-            "total_notes": total_notes
+            "total_notes": total_notes,
+            "matching_notes": matching_notes
         }
     
     finally:
