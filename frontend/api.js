@@ -16,9 +16,9 @@ async function getNotes(search = "", sort = "id") {
 
 
 // Get note statistics
-async function getNoteStats() {
+async function getNoteStats(search) {
     const response = await fetch(
-        `${API_URL}/notes/stats`
+        `${API_URL}/notes/stats?search=${encodeURIComponent(search)}`
     );
 
     if (!response.ok) {

@@ -191,9 +191,10 @@ function createNoteElement(note) {
 async function loadStats() {
     
     try {
-        const stats = await getNoteStats();
+        const search = document.getElementById("search").value;
+        const stats = await getNoteStats(search);
 
-        document.getElementById("stats").textContent =
+        document.getElementById("stats").innerHTML =
             `Total notes: ${stats.total_notes}<br>
             Matching notes: ${stats.matching_notes}`;
     }
