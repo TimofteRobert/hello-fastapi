@@ -18,11 +18,12 @@ def close_cursor(conn, cur):
 
 
 # Create a dictionary
-def make_note(note_id, title, content):
+def make_note(note_id, title, content, created_at):
     return {
         "id": note_id,
         "title": title,
-        "content": content
+        "content": content,
+        "created_at": created_at
     }
 
 
@@ -43,7 +44,7 @@ def get_notes(search: Optional[str] = None, sort: str = "id"):
         if search:
             cur.execute(
                 f"""
-                SELECT id, title, content
+                SELECT id, title, content, created_at
                 FROM notes
                 WHERE
                     title ILIKE %s
@@ -55,7 +56,7 @@ def get_notes(search: Optional[str] = None, sort: str = "id"):
         else:
             cur.execute(
                 f"""
-                SELECT id, title, content
+                SELECT id, title, content, created_at
                 FROM notes
                 ORDER BY {order_by}
                 """
@@ -67,7 +68,8 @@ def get_notes(search: Optional[str] = None, sort: str = "id"):
             make_note(
                 r[0],
                 r[1],
-                r[2]
+                r[2],
+                r[3]
             )
             for r in rows
         ]
@@ -119,7 +121,7 @@ def get_note_by_id(note_id: int):
 
     try:
         cur.execute(
-            "SELECT id, title, content FROM notes WHERE id = %s",
+            "SELECT id, title, content, created_at FROM notes WHERE id = %s",
             (note_id,)
         )
 
@@ -131,7 +133,8 @@ def get_note_by_id(note_id: int):
         return make_note(
             row[0],
             row[1],
-            row[2]
+            row[2],
+            row[3]
         )
 
     finally:
@@ -143,17 +146,22 @@ def create_note(note: Note):
 
     try:
         cur.execute(
-            "INSERT INTO notes (title, content) VALUES (%s, %s) RETURNING id",
+            "INSERT INTO notes (title, content) VALUES (%s, %s) RETURNING id, created_at",
             (note.title, note.content)
         )
 
-        note_id = cur.fetchone()[0]
+        row = cur.fetchone()
+
+        note_id = row[0]
+        created_at = row[1]
+
         conn.commit()
 
         return make_note(
             note_id,
             note.title,
-            note.content
+            note.content,
+            created_at
         )
 
     except Exception:
@@ -173,6 +181,7 @@ def update_note(note_id: int, note: Note):
             SET title = %s,
                 content = %s
             WHERE id = %s
+            RETURNING created_at
             """,
             (note.title, note.content, note_id)
         )
@@ -180,12 +189,17 @@ def update_note(note_id: int, note: Note):
         if cur.rowcount == 0:
             return None
 
+        row = cur.fetchone()
+
+        created_at = row[0]
+
         conn.commit()
 
         updated_note = make_note(
             note_id,
             note.title,
-            note.content
+            note.content,
+            created_at
         )
         updated_note["message"] = "Note updated"
 
